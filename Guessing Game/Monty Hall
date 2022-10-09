@@ -1,0 +1,36 @@
+def montyhall(doors=3, monty_doors=1, iterations=1000000):
+    result={'stay':0, 'switch': 0}
+    for x in range(iterations):
+        # setup doors (default 3), put a car behind only 1
+        doorlist=list(range(1,doors+1))
+        choice_correct = random.choice(doorlist)
+
+        # contestant chooses any of the doors, with no knowledge of whats behind
+        contestant_choice_1 = random.choice(doorlist)
+
+        # monty starts with the the same set of doors, with knowledge of what's behind
+        available_to_monty=doorlist.copy()
+        # ... and with some rules he must follow
+        available_to_monty.remove(contestant_choice_1)  # can't choose the same door as the contestant
+        if choice_correct in available_to_monty:  # can't reveal the winner right away
+            available_to_monty.remove(choice_correct)
+
+        for y in range(1,monty_doors+1):  # Monty opens as many doors as directed (default 1)
+            monty_choice = random.choice(available_to_monty)
+            doorlist.remove(monty_choice)  # remove that door from what the contestant can choose
+            available_to_monty.remove(monty_choice)  # remove that door from what Monty can choose
+
+        # now the contestant has a decision to make
+        decision = random.choice(['stay', 'switch'])
+        if decision == 'stay': # final choice is the first choice
+            contestant_choice_final = contestant_choice_1
+        else: # pick another door
+            doorlist.remove(contestant_choice_1)
+            contestant_choice_final = random.choice(doorlist)
+
+        if contestant_choice_final == choice_correct:
+            result[decision]+=1 # add 1 to the number of games won for that choice
+
+    print(f"doors: {doors}")
+    print(f"stay:   {(result['stay']/(result['stay']+result['switch']))*100:.5f}%")
+    print(f"switch: {(result['switch']/(result['stay']+result['switch']))*100:.5f}%")
